@@ -72,7 +72,7 @@ public class GestaoOrdemServicoService {
 		ordemServico = ordem.save(ordemServico);
 
 		pagamentoRepository.save(ordemServico.getPagamento());
-		emailService.sendOrderConfirmationEmail(ordemServico);
+		emailService.sendOrderConfirmationHtmlEmail(ordemServico);
 		return ordemServico;
 
 	}

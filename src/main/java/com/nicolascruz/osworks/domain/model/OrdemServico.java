@@ -249,6 +249,11 @@ public class OrdemServico implements Serializable {
 		}
 		setStatus(StatusOrdemServico.CANCELADA);
 	}
+	
+	public Date formatDate() {
+		Date data = Date.from(getDataAbertura().toInstant());
+		return data;
+	}
 
 	@Override
 	public String toString() {

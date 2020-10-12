@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<title th:remove="all">Customer Confirmation</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+	<div>
+		<h1>
+			Código: <span th:text="${cliente.id}"> </span>
+		</h1>
+		<p>
+			Email: <span th:text="${cliente.email}"></span>
+		</p>
+		<p>
+			CPF/CNPJ: <span th:text="${cliente.cpf}"></span>
+		</p>
+		<h3>Endereços:</h3>
+		<table border="1">
+			<tr>
+				<th>CEP</th>
+				<th>Logradouro</th>
+				<th>Número</th>
+			</tr>
+			<tr th:each="item : ${cliente.enderecos}">
+				<td th:text="${item.cep}">CEP</td>
+				<td th:text="${item.logradouro}">Logradouro</td>
+				<td th:text="${item.numero}">Número</td>
+			</tr>
+		</table>
+	</div>
+</body>
+</html>
