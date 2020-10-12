@@ -71,11 +71,11 @@ public class OrdemServico implements Serializable {
 	@OneToMany(mappedBy = "ordemServico") //para amarrar os relacionamentos desta classe com a classe de comentario
 	private List<Comentario> comentarios = new ArrayList<>();
 	
-	@OneToOne(cascade = CascadeType.ALL, mappedBy="ordemServico") //para fazer mapeamento bidirecional 1:1
+	@OneToOne(cascade=CascadeType.ALL, mappedBy="ordemServico") //para fazer mapeamento bidirecional 1:1
 	private Pagamento pagamento;
 	
 	@ManyToOne
-	//@JoinColumn
+	//@JoinColumn(name="ENDERECO_ID")
 	private Endereco endereco;
 	
 	public OrdemServico() {
@@ -160,6 +160,9 @@ public class OrdemServico implements Serializable {
 		this.endereco = endereco;
 	}
 	
+	public BigDecimal getValorTotal() {
+		return this.preco;
+	}
 	@Override
 	public int hashCode() {
 		final int prime = 31;

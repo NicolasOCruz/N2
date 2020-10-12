@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -34,6 +35,7 @@ public class Cliente implements Serializable {
 	/*@NotBlank
 	@Email
 	@Size(max = 255)*/
+	@Column(unique = true)
 	private String email;
 	
 	/*@Column
@@ -65,7 +67,7 @@ public class Cliente implements Serializable {
 		this.email = email;
 		this.telefone = telefone;
 		this.cpf = cpf;
-		this.tipo = tipo.getCod();
+		this.tipo = (tipo==null) ? null : tipo.getCod();
 	}
 	public Long getId() {
 		return id;

@@ -12,7 +12,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.nicolascruz.osworks.api.model.ClienteDTO;
 import com.nicolascruz.osworks.api.model.ClienteInput;
 import com.nicolascruz.osworks.api.model.ClienteModel;
 import com.nicolascruz.osworks.domain.model.Cidade;
@@ -36,7 +36,6 @@ import com.nicolascruz.osworks.domain.service.CadastroClienteService;
 import com.nicolascruz.osworks.domain.service.PageClienteService;
 import com.nicolascruz.osworks.domain.service.exceptions.DataIntegrityException;
 
-@CrossOrigin(origins = "http://localhost:4200", maxAge = 3600)
 @RestController
 @RequestMapping("/clientes")
 public class ClienteController {
@@ -100,26 +99,24 @@ public class ClienteController {
 																					// requisição em um objeto
 
 		Cliente cliente = fromDTO(clienteInput);
-		System.out.println(cliente.toString());
 		return toModel(cadastroCliente.salvar(cliente));
 	}
 
 	@PutMapping("/{clienteId}")
-	public ResponseEntity<ClienteModel> atualizar(@Valid @PathVariable Long clienteId,
-			@RequestBody ClienteInput clienteInput) {
+	public ResponseEntity<ClienteModel> atualizar(@Valid @RequestBody ClienteDTO clienteDTO, @PathVariable Long clienteId) {
 
 		if (!clienteRepository.existsById(clienteId)) {
 			return ResponseEntity.notFound().build();
 		}
 		// tem que setar o ID, porque se passar um parametro sem ID ele vai criar um
 		// cliente novo
-		Cliente cliente = fromDTO(clienteInput);
+		Cliente cliente = cadastroCliente.fromDTO(clienteDTO);
 		cliente.setId(clienteId);
 		cliente = cadastroCliente.update(cliente);
 
-		ClienteModel clienteModel = toModel(cliente);
+		ClienteModel clienteMdl = toModel(cliente);
 
-		return ResponseEntity.ok(clienteModel);
+		return ResponseEntity.ok(clienteMdl);
 	}
 
 	@DeleteMapping("/{clienteId}")

@@ -1,3 +1,4 @@
+  
 package com.nicolascruz.osworks.api.model;
 
 import java.io.Serializable;
@@ -66,5 +67,4 @@ public class ClienteModel implements Serializable {
 	public void setEnderecos(List<Endereco> enderecos) {
 		this.enderecos = enderecos;
 	}
-	
 }

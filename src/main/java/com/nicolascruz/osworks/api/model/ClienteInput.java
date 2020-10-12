@@ -8,6 +8,9 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import com.nicolascruz.osworks.domain.service.validation.ClienteInsert;
+
+@ClienteInsert
 public class ClienteInput implements Serializable {
 	
 	private static final long serialVersionUID = 1L;

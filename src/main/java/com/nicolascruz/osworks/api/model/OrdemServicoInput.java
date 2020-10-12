@@ -6,6 +6,8 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
+import com.nicolascruz.osworks.domain.model.Pagamento;
+
 public class OrdemServicoInput {
 
 	@NotBlank
@@ -18,6 +20,11 @@ public class OrdemServicoInput {
 	@NotNull
 	private ClienteIdInput cliente;
 	
+	@Valid
+	@NotNull
+	private EnderecoIdInput endereco;
+	
+	private Pagamento pagamento;
 	
 	public String getDescricao() {
 		return descricao;
@@ -36,5 +43,17 @@ public class OrdemServicoInput {
 	}
 	public void setCliente(ClienteIdInput cliente) {
 		this.cliente = cliente;
+	}
+	public Pagamento getPagamento() {
+		return pagamento;
+	}
+	public void setPagamento(Pagamento pagamento) {
+		this.pagamento = pagamento;
+	}
+	public EnderecoIdInput getEndereco() {
+		return endereco;
+	}
+	public void setEndereco(EnderecoIdInput endereco) {
+		this.endereco = endereco;
 	}
 }

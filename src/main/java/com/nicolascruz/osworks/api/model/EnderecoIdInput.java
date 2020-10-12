@@ -2,7 +2,7 @@ package com.nicolascruz.osworks.api.model;
 
 import javax.validation.constraints.NotNull;
 
-public class ClienteIdInput {
+public class EnderecoIdInput {
 	
 	@NotNull
 	private Long id;
