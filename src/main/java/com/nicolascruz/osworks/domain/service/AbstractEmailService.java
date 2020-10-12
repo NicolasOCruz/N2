@@ -30,7 +30,7 @@ public abstract class AbstractEmailService implements EmailService {
 		SimpleMailMessage sm = new SimpleMailMessage();
 		sm.setTo(obj.getCliente().getEmail());
 		sm.setFrom(sender);
-		sm.setSubject("Ordem de Serviço gerada! Código: " + obj.getId());
+		sm.setSubject("Zurc Tech - Ordem de Serviço gerada!" + obj.toString());
 		sm.setSentDate(new Date(System.currentTimeMillis()));
 		sm.setText(obj.toString());
 		return sm;
@@ -41,7 +41,7 @@ public abstract class AbstractEmailService implements EmailService {
 		SimpleMailMessage sm = new SimpleMailMessage();
 		sm.setTo(obj.getEmail());
 		sm.setFrom(sender);
-		sm.setSubject("Seu cadastro em nossa plataforma foi gerado! Código: " + obj.getId());
+		sm.setSubject("Zurc Tech - Olá " + obj.getNome() + "!" + " Seu cadastro em nossa plataforma foi gerado!");
 		sm.setSentDate(new Date(System.currentTimeMillis()));
 		sm.setText(obj.toString());
 		return sm;

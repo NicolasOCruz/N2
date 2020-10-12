@@ -36,6 +36,7 @@ public class CadastroClienteService {
 		cliente = clienteRepositorio.save(cliente);
 		enderecoRepository.saveAll(cliente.getEnderecos());
 		emailService.sendOrderConfirmationEmail(cliente);
+		System.out.println(cliente);
 		return cliente;
 	}
 	

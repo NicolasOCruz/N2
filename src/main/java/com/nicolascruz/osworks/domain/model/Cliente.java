@@ -142,8 +142,24 @@ public class Cliente implements Serializable {
 	}
 	@Override
 	public String toString() {
-		return "Cliente [id=" + id + ", nome=" + nome + ", email=" + email + ", telefone=" + telefone + ", cpf=" + cpf
-				+ ", tipo=" + tipo + ", enderecos=" + enderecos + ", ordensServicos=" + ordensServicos + "]";
+		Integer count = 0;
+		StringBuilder builder = new StringBuilder();
+		builder.append("\nCliente: Código: ");
+		builder.append(getId());
+		builder.append("\nEmail: ");
+		builder.append(getEmail());
+		if (cpf.length() > 11) { 
+			builder.append("\nCNPJ: ");
+		} else {
+			builder.append("\nCPF: ");
+		}
+		builder.append(getCpf());
+		for(Endereco e : getEnderecos()) {
+			count = count + 1;
+			builder.append("\nEndereço " + count + ":\n");
+			builder.append("CEP: " + e.getCep() + " - " + e.getLogradouro() + " - " + e.getNumero());
+		}
+		return builder.toString();
 	}
 	
 }
