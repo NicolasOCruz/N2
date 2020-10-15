@@ -1,13 +1,17 @@
 package com.nicolascruz.osworks.domain.service;
 
+import java.awt.image.BufferedImage;
+import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.nicolascruz.osworks.domain.model.Cliente;
 import com.nicolascruz.osworks.domain.model.Comentario;
@@ -19,8 +23,10 @@ import com.nicolascruz.osworks.domain.repository.ClienteRepository;
 import com.nicolascruz.osworks.domain.repository.ComentarioRepository;
 import com.nicolascruz.osworks.domain.repository.OrdemServicoRepository;
 import com.nicolascruz.osworks.domain.repository.PagamentoRepository;
+import com.nicolascruz.osworks.domain.service.exceptions.AuthorizationException;
 import com.nicolascruz.osworks.domain.service.exceptions.DataIntegrityException;
 import com.nicolascruz.osworks.domain.service.exceptions.ObjectNotFoundException;
+import com.nicolascruz.osworks.security.UserSS;
 
 @Service
 public class GestaoOrdemServicoService {
@@ -42,6 +48,18 @@ public class GestaoOrdemServicoService {
 
 	@Autowired
 	private EmailService emailService;
+	
+	@Autowired
+	private S3Service s3Service;
+	
+	@Autowired
+	private ImageService imageService;
+	
+	@Value("${img.prefix.client.profile}")
+	private String prefix;
+	
+	@Value("${img.profile.size}")
+	private Integer size;
 
 	public Optional<OrdemServico> find(Long id) {
 		Optional<OrdemServico> obj = ordem.findById(id);
@@ -112,17 +130,40 @@ public class GestaoOrdemServicoService {
 		return comentarioRepository.save(comentario);
 	}
 
-	public Page<OrdemServico> search(Long clienteId, Integer page, Integer linesPerPage, String orderBy,
+	public Page<OrdemServico> search(Integer page, Integer linesPerPage, String orderBy,
 			String direction) {
 
+		UserSS user = UserService.authenticated();
+		
+		if(user == null) {
+			throw new AuthorizationException("Acesso Negado");
+			
+		}
+		
 		PageRequest pageRequest = PageRequest.of(page, linesPerPage, Direction.valueOf(direction), orderBy);
 
-		Cliente cliente = clienteRepository.findById(clienteId)
+		Cliente cliente = clienteRepository.findById(user.getId())
 				.orElseThrow(() -> new ObjectNotFoundException("Cliente não encontrado"));
-		
-		//return ordem.findById(cliente.getId(), pageRequest);
-		
+				
 		return ordem.findByClienteId(cliente.getId(), pageRequest);
 	}
+	
+	 public URI uploadProfilePicture(MultipartFile multipartFile) {
+		 
+		 UserSS user = UserService.authenticated();
+			
+			if(user == null) {
+				throw new AuthorizationException("Acesso Negado");
+				
+			}
+		
+			BufferedImage jpgImage = imageService.getJpgImageFromFile(multipartFile);
+			jpgImage = imageService.cropSquare(jpgImage);
+			jpgImage = imageService.resize(jpgImage, size);
+			
+			String fileName = prefix + user.getId() + ".jpg";
+			
+			return s3Service.uploadFile(imageService.getInputStream(jpgImage, "jpg"), fileName, "image");
+	 }
 
 }

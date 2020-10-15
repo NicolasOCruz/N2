@@ -8,6 +8,7 @@ import javax.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -37,6 +38,7 @@ public class ComentarioController {
 	@Autowired
 	private OrdemServicoRepository ordemRepositorio;
 	
+	@PreAuthorize("hasAnyRole('ADMIN')")
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
 	public ComentarioModel adicionar(@PathVariable Long ordemServicoId,
@@ -46,7 +48,7 @@ public class ComentarioController {
 		
 		return toModel(comentario);
 	}
-	
+	@PreAuthorize("hasAnyRole('ADMIN')")
 	@GetMapping
 	public List<ComentarioModel> listar(@PathVariable Long ordemServicoId){
 		OrdemServico ordemServico = ordemRepositorio.findById(ordemServicoId)

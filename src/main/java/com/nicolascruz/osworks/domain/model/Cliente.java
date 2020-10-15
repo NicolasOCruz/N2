@@ -2,11 +2,17 @@ package com.nicolascruz.osworks.domain.model;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.persistence.CascadeType;
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -48,19 +54,26 @@ public class Cliente implements Serializable {
 	
 	private Integer tipo;
 	
+	@JsonIgnore
+	private String senha;
+	
 	//@JsonManagedReference //(nao mais utilizado) como a associação entre os dois é bidirecional, para não criar uma serialização ciclica, onde um fica buscando o outro constantemente, é necessária essa anotação
     @OneToMany(mappedBy = "cliente", cascade=CascadeType.ALL) //para amarrar os relacionamentos desta classe com a classe de endereco, cascade para informar que, ao apagar o cliente, apague os enderecos tbm
 	private List<Endereco> enderecos = new ArrayList<>();
 	
+    @ElementCollection(fetch=FetchType.EAGER) //Para garantir que, ao consultar o cliente, o seu nível de acesso também seja consultado
+    @CollectionTable(name="PERFIS")
+    private Set<Integer> perfis = new HashSet<>();
+    
     @JsonIgnore
 	@OneToMany(mappedBy = "cliente") 
 	private List<OrdemServico> ordensServicos = new ArrayList<>();
 	
 	public Cliente() {
-		
+		addPerfil(Perfil.CLIENTE);
 	}
 	public Cliente(@NotNull(groups = ClienteID.class) Long id, String nome, String email, String telefone, String cpf,
-			TipoCliente tipo) {
+			TipoCliente tipo, String senha) {
 		super();
 		this.id = id;
 		this.nome = nome;
@@ -68,6 +81,8 @@ public class Cliente implements Serializable {
 		this.telefone = telefone;
 		this.cpf = cpf;
 		this.tipo = (tipo==null) ? null : tipo.getCod();
+		this.senha = senha;
+		addPerfil(Perfil.CLIENTE);
 	}
 	public Long getId() {
 		return id;
@@ -116,6 +131,18 @@ public class Cliente implements Serializable {
 	}
 	public void setOrdensServicos(List<OrdemServico> ordensServicos) {
 		this.ordensServicos = ordensServicos;
+	}
+	public String getSenha() {
+		return senha;
+	}
+	public void setSenha(String senha) {
+		this.senha = senha;
+	}
+	public Set<Perfil> getPerfis(){
+		return perfis.stream().map(x -> Perfil.toEnum(x)).collect(Collectors.toSet());
+	}
+	public void addPerfil(Perfil perfil) {
+		perfis.add(perfil.getCod());
 	}
 	@Override
 	public int hashCode() {

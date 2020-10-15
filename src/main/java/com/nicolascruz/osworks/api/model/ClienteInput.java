@@ -39,6 +39,9 @@ public class ClienteInput implements Serializable {
 	@NotNull
 	private Integer tipo;
 	
+	@NotNull
+	private String senha;
+	
 	@NotBlank
 	private String logradouro;
 	
@@ -143,6 +146,14 @@ public class ClienteInput implements Serializable {
 
 	public void setCidadeId(Long cidadeId) {
 		this.cidadeId = cidadeId;
+	}
+
+	public String getSenha() {
+		return senha;
+	}
+
+	public void setSenha(String senha) {
+		this.senha = senha;
 	}
 
 	@Override

@@ -28,7 +28,7 @@ public class CadastroClienteService {
 		Cliente clienteExistente = clienteRepositorio.findByCpf(cliente.getCpf());
 	
 		if (clienteExistente != null && !clienteExistente.equals(cliente)) {
-			throw new DataIntegrityException("Já existe um cliente cadastrado nesse CPF");
+			throw new DataIntegrityException("Existe um cliente cadastrado nesse CPF/CNPJ");
 		}
 
 		cliente.setId(null);
@@ -52,7 +52,7 @@ public class CadastroClienteService {
 	}
 	
 	public Cliente fromDTO(ClienteDTO objDto) {
-		return new Cliente(objDto.getId(), objDto.getNome(), objDto.getEmail(), null, null, null);
+		return new Cliente(objDto.getId(), objDto.getNome(), objDto.getEmail(), null, null, null, null);
 	}
 	
 	private void updateData(Cliente newObj, Cliente cliente) {

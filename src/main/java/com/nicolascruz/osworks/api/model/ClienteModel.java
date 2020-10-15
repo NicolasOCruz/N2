@@ -3,10 +3,13 @@ package com.nicolascruz.osworks.api.model;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.nicolascruz.osworks.domain.model.Cliente;
 import com.nicolascruz.osworks.domain.model.Endereco;
+import com.nicolascruz.osworks.domain.model.Perfil;
 
 public class ClienteModel implements Serializable {
 	
@@ -18,6 +21,7 @@ public class ClienteModel implements Serializable {
 	private String telefone;
 	private String cpf;
 	private List<Endereco> enderecos = new ArrayList<>();
+	private Set<Perfil> perfis = new HashSet<>();
 	
 	public ClienteModel() {
 		
@@ -30,6 +34,7 @@ public class ClienteModel implements Serializable {
 		telefone = obj.getTelefone();
 		cpf = obj.getCpf();
 		enderecos = obj.getEnderecos();
+		perfis = obj.getPerfis();
 	}
 	public Long getId() {
 		return id;
@@ -66,5 +71,11 @@ public class ClienteModel implements Serializable {
 	}
 	public void setEnderecos(List<Endereco> enderecos) {
 		this.enderecos = enderecos;
+	}
+	public Set<Perfil> getPerfis() {
+		return perfis;
+	}
+	public void setPerfis(Set<Perfil> perfis) {
+		this.perfis = perfis;
 	}
 }

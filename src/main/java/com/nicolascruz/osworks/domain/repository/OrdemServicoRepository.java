@@ -12,7 +12,7 @@ import com.nicolascruz.osworks.domain.model.OrdemServico;
 @Repository
 public interface OrdemServicoRepository extends JpaRepository<OrdemServico, Long>{
 	
-	@Transactional(readOnly=true)
+	@Transactional(readOnly=true) //reduz o locking
 	Page<OrdemServico> findByClienteId(Long id, Pageable pageRequest);
 	
 }

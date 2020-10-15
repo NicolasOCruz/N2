@@ -12,6 +12,8 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,12 +31,16 @@ import com.nicolascruz.osworks.api.model.ClienteModel;
 import com.nicolascruz.osworks.domain.model.Cidade;
 import com.nicolascruz.osworks.domain.model.Cliente;
 import com.nicolascruz.osworks.domain.model.Endereco;
+import com.nicolascruz.osworks.domain.model.Perfil;
 import com.nicolascruz.osworks.domain.model.TipoCliente;
 import com.nicolascruz.osworks.domain.repository.CidadeRepository;
 import com.nicolascruz.osworks.domain.repository.ClienteRepository;
 import com.nicolascruz.osworks.domain.service.CadastroClienteService;
 import com.nicolascruz.osworks.domain.service.PageClienteService;
+import com.nicolascruz.osworks.domain.service.UserService;
+import com.nicolascruz.osworks.domain.service.exceptions.AuthorizationException;
 import com.nicolascruz.osworks.domain.service.exceptions.DataIntegrityException;
+import com.nicolascruz.osworks.security.UserSS;
 
 @RestController
 @RequestMapping("/clientes")
@@ -54,7 +60,11 @@ public class ClienteController {
 
 	@Autowired
 	private CidadeRepository cidadeRepository;
+	
+	@Autowired
+	private BCryptPasswordEncoder bc;
 
+	@PreAuthorize("hasAnyRole('ADMIN')")
 	@GetMapping
 	public List<ClienteModel> listar() {
 		return toCollectionModel(clienteRepository.findAll());
@@ -63,6 +73,13 @@ public class ClienteController {
 	@GetMapping("/{clienteId}")
 	public ResponseEntity<ClienteModel> buscar(@PathVariable Long clienteId) { // anotação para fazer o Binding no
 																				// {clientesId}
+		
+		UserSS user = UserService.authenticated();
+		
+		if( user == null || !user.hasRole(Perfil.TECNICO) && !clienteId.equals(user.getId())) {
+			throw new AuthorizationException("Acesso Negado");
+		}
+		
 		Optional<Cliente> cliente = clienteRepository.findById(clienteId); // Optional é um container onde pode ter algo
 																			// dentro ou não
 
@@ -92,7 +109,7 @@ public class ClienteController {
 		}
 		return ResponseEntity.notFound().build();
 	}
-
+	@PreAuthorize("hasAnyRole('ADMIN')")
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED) // retorna o status 201, poderia fazer com response entity tbm
 	public ClienteModel adicionar(@Valid @RequestBody ClienteInput clienteInput) { // tranforme o JSON do corpo da
@@ -102,6 +119,7 @@ public class ClienteController {
 		return toModel(cadastroCliente.salvar(cliente));
 	}
 
+	@PreAuthorize("hasAnyRole('ADMIN')")
 	@PutMapping("/{clienteId}")
 	public ResponseEntity<ClienteModel> atualizar(@Valid @RequestBody ClienteDTO clienteDTO, @PathVariable Long clienteId) {
 
@@ -119,6 +137,7 @@ public class ClienteController {
 		return ResponseEntity.ok(clienteMdl);
 	}
 
+	@PreAuthorize("hasAnyRole('ADMIN')")
 	@DeleteMapping("/{clienteId}")
 	public ResponseEntity<Void> remover(@PathVariable Long clienteId) {
 		if (!clienteRepository.existsById(clienteId)) {
@@ -133,6 +152,7 @@ public class ClienteController {
 
 	}
 
+	@PreAuthorize("hasAnyRole('ADMIN')")
 	@GetMapping("/page")
 	public ResponseEntity<Page<ClienteModel>> findPage(
 			// Atributos opcionais na rewuisição, com valores padrões caso não sejam
@@ -167,7 +187,7 @@ public class ClienteController {
 
 	private Cliente fromDTO(ClienteInput cliente) {
 		Cliente cli = new Cliente(null, cliente.getNome(), cliente.getEmail(), cliente.getTelefone(), cliente.getCpf(),
-				TipoCliente.toEnum(cliente.getTipo()));
+				TipoCliente.toEnum(cliente.getTipo()), bc.encode(cliente.getSenha()));
 		Cidade city = cidadeRepository.findById(cliente.getCidadeId()).orElse(null);
 
 		Endereco end = new Endereco(null, cliente.getLogradouro(), cliente.getNumero(), cliente.getComplemento(),

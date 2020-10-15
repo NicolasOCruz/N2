@@ -44,7 +44,7 @@ public abstract class AbstractEmailService implements EmailService {
 		SimpleMailMessage sm = new SimpleMailMessage();
 		sm.setTo(obj.getCliente().getEmail());
 		sm.setFrom(sender);
-		sm.setSubject("Zurc Tech - Ordem de Serviço gerada!" + obj.toString());
+		sm.setSubject("FastServices - Ordem de Serviço gerada!" + obj.toString());
 		sm.setSentDate(new Date(System.currentTimeMillis()));
 		sm.setText(obj.toString());
 		return sm;
@@ -55,7 +55,7 @@ public abstract class AbstractEmailService implements EmailService {
 		SimpleMailMessage sm = new SimpleMailMessage();
 		sm.setTo(obj.getEmail());
 		sm.setFrom(sender);
-		sm.setSubject("Zurc Tech - Olá " + obj.getNome() + "!" + " Seu cadastro em nossa plataforma foi gerado!");
+		sm.setSubject("FastServices - Olá " + obj.getNome() + "!" + " Seu cadastro em nossa plataforma foi gerado!");
 		sm.setSentDate(new Date(System.currentTimeMillis()));
 		sm.setText(obj.toString());
 		return sm;
@@ -99,7 +99,7 @@ public abstract class AbstractEmailService implements EmailService {
 		MimeMessageHelper mmh = new MimeMessageHelper(mimeMessage, true);
 		mmh.setTo(obj.getCliente().getEmail());
 		mmh.setFrom(sender);
-		mmh.setSubject("Zurc Tech - Ordem de Serviço gerada! Código: " + obj.getId());
+		mmh.setSubject("FastServices - Ordem de Serviço gerada! Código: " + obj.getId());
 		mmh.setSentDate(new Date(System.currentTimeMillis()));
 		mmh.setText(htmlFromTemplatePedido(obj), true);
 		return mimeMessage;
@@ -110,9 +110,25 @@ public abstract class AbstractEmailService implements EmailService {
 		MimeMessageHelper mmh = new MimeMessageHelper(mimeMessage, true);
 		mmh.setTo(obj.getEmail());
 		mmh.setFrom(sender);
-		mmh.setSubject("Zurc Tech - Olá " + obj.getNome() + "!" + " Seu cadastro em nossa plataforma foi gerado!");
+		mmh.setSubject("FastServices - Olá " + obj.getNome() + "!" + " Seu cadastro em nossa plataforma foi gerado!");
 		mmh.setSentDate(new Date(System.currentTimeMillis()));
 		mmh.setText(htmlFromTemplatePedido(obj), true);
 		return mimeMessage;
+	}
+	
+	@Override
+	public void sendNewPasswordHtmlEmail(Cliente cliente, String newPass) {
+		SimpleMailMessage sm = prepareNewPasswordemail(cliente, newPass);
+		sendEmail(sm);
+	}
+
+	protected SimpleMailMessage prepareNewPasswordemail(Cliente cliente, String newPass) {
+		SimpleMailMessage sm = new SimpleMailMessage();
+		sm.setTo(cliente.getEmail());
+		sm.setFrom(sender);
+		sm.setSubject("FastServices - Olá " + cliente.getNome() + "!" + " Solicitação de nova senha!");
+		sm.setSentDate(new Date(System.currentTimeMillis()));
+		sm.setText("Nova senha: " + newPass);
+		return sm;
 	}
 }
