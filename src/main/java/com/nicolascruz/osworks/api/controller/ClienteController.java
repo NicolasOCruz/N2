@@ -60,7 +60,7 @@ public class ClienteController {
 
 	@Autowired
 	private CidadeRepository cidadeRepository;
-	
+
 	@Autowired
 	private BCryptPasswordEncoder bc;
 
@@ -71,69 +71,56 @@ public class ClienteController {
 	}
 
 	@GetMapping("/{clienteId}")
-	public ResponseEntity<ClienteModel> buscar(@PathVariable Long clienteId) { // anotação para fazer o Binding no
-																				// {clientesId}
-		
-		UserSS user = UserService.authenticated();
-		
-		if( user == null || !user.hasRole(Perfil.TECNICO) && !clienteId.equals(user.getId())) {
-			throw new AuthorizationException("Acesso Negado");
-		}
-		
-		Optional<Cliente> cliente = clienteRepository.findById(clienteId); // Optional é um container onde pode ter algo
-																			// dentro ou não
-
+	public ResponseEntity<ClienteModel> buscar(@PathVariable Long clienteId) {
+		authenticated(clienteId);
+		Optional<Cliente> cliente = clienteRepository.findById(clienteId); 																	
 		if (cliente.isPresent()) {
-
 			ClienteModel clienteModel = toModel(cliente.get());
-
 			return ResponseEntity.ok(clienteModel);
-			// se tiver algo dentro do conteiner, retorne uma Response 200 (ok)
 		}
-		// return cliente.orElse(null); //se nao tiver nada dentro do container retorna
-		// null
-
-		// caso contrario, retorne uma Response 404 (not found)
 		return ResponseEntity.notFound().build();
 	}
 
 	@GetMapping("/cpf/{clienteCpf}")
 	public ResponseEntity<ClienteModel> buscarCpf(@PathVariable String clienteCpf) {
 		Cliente cliente = clienteRepository.findByCpf(clienteCpf);
-
 		if (cliente != null) {
-
 			ClienteModel clienteModel = toModel(cliente);
 			return ResponseEntity.ok(clienteModel);
-
 		}
 		return ResponseEntity.notFound().build();
 	}
+
+	@GetMapping("/email")
+	public ResponseEntity<ClienteModel> buscarEmail(@RequestParam(value="value") String clienteEmail) {
+		authenticated(clienteEmail);
+		Cliente cliente = clienteRepository.findByEmail(clienteEmail);
+		if (cliente != null) {
+			ClienteModel clienteModel = toModel(cliente);
+			return ResponseEntity.ok(clienteModel);
+		}
+		return ResponseEntity.notFound().build();
+	}
+
 	@PreAuthorize("hasAnyRole('ADMIN')")
 	@PostMapping
-	@ResponseStatus(HttpStatus.CREATED) // retorna o status 201, poderia fazer com response entity tbm
-	public ClienteModel adicionar(@Valid @RequestBody ClienteInput clienteInput) { // tranforme o JSON do corpo da
-																					// requisição em um objeto
-
+	@ResponseStatus(HttpStatus.CREATED)
+	public ClienteModel adicionar(@Valid @RequestBody ClienteInput clienteInput) {																
 		Cliente cliente = fromDTO(clienteInput);
 		return toModel(cadastroCliente.salvar(cliente));
 	}
 
 	@PreAuthorize("hasAnyRole('ADMIN')")
 	@PutMapping("/{clienteId}")
-	public ResponseEntity<ClienteModel> atualizar(@Valid @RequestBody ClienteDTO clienteDTO, @PathVariable Long clienteId) {
-
+	public ResponseEntity<ClienteModel> atualizar(@Valid @RequestBody ClienteDTO clienteDTO,
+			@PathVariable Long clienteId) {
 		if (!clienteRepository.existsById(clienteId)) {
 			return ResponseEntity.notFound().build();
 		}
-		// tem que setar o ID, porque se passar um parametro sem ID ele vai criar um
-		// cliente novo
 		Cliente cliente = cadastroCliente.fromDTO(clienteDTO);
 		cliente.setId(clienteId);
 		cliente = cadastroCliente.update(cliente);
-
 		ClienteModel clienteMdl = toModel(cliente);
-
 		return ResponseEntity.ok(clienteMdl);
 	}
 
@@ -155,8 +142,6 @@ public class ClienteController {
 	@PreAuthorize("hasAnyRole('ADMIN')")
 	@GetMapping("/page")
 	public ResponseEntity<Page<ClienteModel>> findPage(
-			// Atributos opcionais na rewuisição, com valores padrões caso não sejam
-			// informados
 			@RequestParam(value = "page", defaultValue = "0") Integer page,
 			@RequestParam(value = "linesPerPage", defaultValue = "24") Integer linesPerPage,
 			@RequestParam(value = "orderBy", defaultValue = "nome") String orderBy,
@@ -180,11 +165,6 @@ public class ClienteController {
 													// retornar um novo stream como resultado
 				.collect(Collectors.toList()); // vai reduzir o stream anterior para uma coleção
 	}
-
-	/*private Cliente toEntity(ClienteInput clienteInput) {
-		return modelMapper.map(clienteInput, Cliente.class);
-	}*/
-
 	private Cliente fromDTO(ClienteInput cliente) {
 		Cliente cli = new Cliente(null, cliente.getNome(), cliente.getEmail(), cliente.getTelefone(), cliente.getCpf(),
 				TipoCliente.toEnum(cliente.getTipo()), bc.encode(cliente.getSenha()));
@@ -194,5 +174,18 @@ public class ClienteController {
 				cliente.getBairro(), cliente.getCep(), cli, city);
 		cli.getEnderecos().add(end);
 		return cli;
+	}
+
+	private void authenticated(Long clienteId) {
+		UserSS user = UserService.authenticated();
+		if (user == null || !user.hasRole(Perfil.TECNICO) && !clienteId.equals(user.getId())) {
+			throw new AuthorizationException("Acesso Negado");
+		}
+	}
+	private void authenticated(String clienteEmail) {
+		UserSS user = UserService.authenticated();
+		if (user == null || !user.hasRole(Perfil.TECNICO) && !clienteEmail.equals(user.getUsername())) {
+			throw new AuthorizationException("Acesso Negado");
+		}
 	}
 }
