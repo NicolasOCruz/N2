@@ -5,10 +5,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.nicolascruz.osworks.api.model.ClienteDTO;
+import com.nicolascruz.osworks.api.model.EnderecoDTO;
+import com.nicolascruz.osworks.domain.model.Cidade;
 import com.nicolascruz.osworks.domain.model.Cliente;
+import com.nicolascruz.osworks.domain.model.Endereco;
+import com.nicolascruz.osworks.domain.repository.CidadeRepository;
 import com.nicolascruz.osworks.domain.repository.ClienteRepository;
 import com.nicolascruz.osworks.domain.repository.EnderecoRepository;
 import com.nicolascruz.osworks.domain.service.exceptions.DataIntegrityException;
+import com.nicolascruz.osworks.domain.service.exceptions.ObjectNotFoundException;
 
 @Service
 public class CadastroClienteService {
@@ -18,6 +23,9 @@ public class CadastroClienteService {
 	
 	@Autowired
 	private EnderecoRepository enderecoRepository;
+	
+	@Autowired
+	private CidadeRepository cidadeRepository;
 	
 	@Autowired
 	private EmailService emailService;
@@ -58,5 +66,25 @@ public class CadastroClienteService {
 	private void updateData(Cliente newObj, Cliente cliente) {
 		newObj.setNome(cliente.getNome());
 		newObj.setEmail(cliente.getEmail());
+	}
+
+	public Endereco adicionarEndereco(Long clienteId, EnderecoDTO endereco) {
+		
+		Cliente cliente = clienteRepositorio.findById(clienteId)
+				.orElseThrow(() -> new ObjectNotFoundException("Cliente não encontrado"));
+		
+		Cidade cidade = cidadeRepository.findById(endereco.getCidadeId())
+				.orElseThrow(() -> new ObjectNotFoundException("Cidade não encontrada"));
+		
+		Endereco end = new Endereco();
+		end.setLogradouro(endereco.getLogradouro());
+		end.setBairro(endereco.getBairro());
+		end.setCep(endereco.getCep());
+		end.setComplemento(endereco.getComplemento());
+		end.setNumero(endereco.getNumero());
+		end.setCidade(cidade);
+		end.setCliente(cliente);
+
+		return enderecoRepository.save(end);
 	}
 }

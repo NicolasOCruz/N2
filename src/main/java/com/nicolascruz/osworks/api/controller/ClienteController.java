@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.nicolascruz.osworks.api.model.ClienteDTO;
 import com.nicolascruz.osworks.api.model.ClienteInput;
 import com.nicolascruz.osworks.api.model.ClienteModel;
+import com.nicolascruz.osworks.api.model.EnderecoDTO;
 import com.nicolascruz.osworks.domain.model.Cidade;
 import com.nicolascruz.osworks.domain.model.Cliente;
 import com.nicolascruz.osworks.domain.model.Endereco;
@@ -112,6 +113,13 @@ public class ClienteController {
 	public ClienteModel adicionar(@Valid @RequestBody ClienteInput clienteInput) {																
 		Cliente cliente = fromDTO(clienteInput);
 		return toModel(cadastroCliente.salvar(cliente));
+	}
+	
+	@PostMapping("/{clienteId}/enderecos")
+	@ResponseStatus(HttpStatus.CREATED)
+	public Endereco adicionarEndereco(@PathVariable Long clienteId, @Valid @RequestBody EnderecoDTO endereco){
+		Endereco end = cadastroCliente.adicionarEndereco(clienteId, endereco);
+		return end;
 	}
 
 	@PreAuthorize("hasAnyRole('ADMIN')")
