@@ -5,7 +5,6 @@ import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -33,9 +32,6 @@ public class ComentarioController {
 	private GestaoOrdemServicoService gestao;
 	
 	@Autowired
-	private ModelMapper modelMapper; //dependencia do Spring importada para converter classes
-	
-	@Autowired
 	private OrdemServicoRepository ordemRepositorio;
 	
 	@PreAuthorize("hasAnyRole('ADMIN')")
@@ -58,13 +54,13 @@ public class ComentarioController {
 	}
 	
 	private ComentarioModel toModel(Comentario comentario) {
-		return modelMapper.map(comentario, ComentarioModel.class);
+		return new ComentarioModel(comentario);
 		
 	}
 	
 	private List<ComentarioModel> toCollectionModel(List<Comentario> comentarios){
 		return comentarios.stream()
-				.map(comentario -> toModel(comentario))
+				.map(comentario -> new ComentarioModel(comentario))
 				.collect(Collectors.toList());
 	}
 	

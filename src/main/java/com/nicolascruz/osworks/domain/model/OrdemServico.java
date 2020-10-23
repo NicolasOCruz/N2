@@ -254,6 +254,16 @@ public class OrdemServico implements Serializable {
 		Date data = Date.from(getDataAbertura().toInstant());
 		return data;
 	}
+	
+	public Date formatDate(OffsetDateTime date) {
+		
+		Date data = null;
+		
+		if(date != null) {
+			 data = Date.from(date.toInstant());
+		} 
+		return data;
+	}
 
 	@Override
 	public String toString() {

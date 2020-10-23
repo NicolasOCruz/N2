@@ -1,7 +1,7 @@
 package com.nicolascruz.osworks.api.model;
 
 import java.math.BigDecimal;
-import java.time.OffsetDateTime;
+import java.util.Date;
 
 import com.nicolascruz.osworks.domain.model.Cliente;
 import com.nicolascruz.osworks.domain.model.OrdemServico;
@@ -15,8 +15,8 @@ public class OrdemServicoModel {
 	private String descricao;
 	private BigDecimal preco;
 	private StatusOrdemServico status;
-	private OffsetDateTime dataAbertura;
-	private OffsetDateTime dataFinalizacao;
+	private Date dataAbertura;
+	private Date dataFinalizacao;
 
 	public OrdemServicoModel(OrdemServico obj) {
 		id = (obj.getId() == null) ? null : obj.getId();
@@ -24,8 +24,16 @@ public class OrdemServicoModel {
 		descricao = obj.getDescricao();
 		cliente = toResumo(obj.getCliente());
 		status = obj.getStatus();
-		dataAbertura = obj.getDataAbertura();
-		dataFinalizacao = (obj.getDataFinalizacao() == null) ? null : obj.getDataFinalizacao();
+		
+		if (obj.formatDate(obj.getDataAbertura()) == null)
+			dataAbertura = null;
+		else
+			dataAbertura = obj.formatDate(obj.getDataAbertura());
+		
+		if (obj.formatDate(obj.getDataFinalizacao()) == null)
+			dataFinalizacao = null;
+		else
+			dataFinalizacao = obj.formatDate(obj.getDataFinalizacao());
 	}
 
 	public Long getId() {
@@ -60,20 +68,20 @@ public class OrdemServicoModel {
 		this.status = status;
 	}
 
-	public OffsetDateTime getDataAbertura() {
+	public Date getDataAbertura() {
 		return dataAbertura;
 	}
 
-	public void setDataAbertura(OffsetDateTime dataAbertura) {
-		this.dataAbertura = dataAbertura;
-	}
-
-	public OffsetDateTime getDataFinalizacao() {
+	public Date getDataFinalizacao() {
 		return dataFinalizacao;
 	}
 
-	public void setDataFinalizacao(OffsetDateTime dataFinalizacao) {
+	public void setDataFinalizacao(Date dataFinalizacao) {
 		this.dataFinalizacao = dataFinalizacao;
+	}
+
+	public void setDataAbertura(Date dataAbertura) {
+		this.dataAbertura = dataAbertura;
 	}
 
 	public ClienteResumoModel getCliente() {

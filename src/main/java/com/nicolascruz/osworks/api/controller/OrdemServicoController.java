@@ -139,9 +139,10 @@ public class OrdemServicoController {
 
 	// converte uma lista de ordem de servico em uma lista de ordem de servico model
 	private List<OrdemServicoModel> toCollectionModel(List<OrdemServico> ordensServico) {
+		System.out.println("Chegou no método");
 		return ordensServico.stream() // strem retorna um fluxo de elementos que suportam operacoes de
 										// agregacao/tranforacao
-				.map(ordemServico -> toModel(ordemServico)) // map vai aplicar uma função a cada elemento um a um do
+				.map(ordemServico -> new OrdemServicoModel(ordemServico)) // map vai aplicar uma função a cada elemento um a um do
 															// stream e retornar um novo stream como resultado
 				.collect(Collectors.toList()); // vai reduzir o stream anterior para uma coleção
 	}

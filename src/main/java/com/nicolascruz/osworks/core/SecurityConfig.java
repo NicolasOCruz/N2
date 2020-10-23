@@ -42,12 +42,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			
 	};
 	private static final String[] PUBLIC_MATCHERS_GET = { //vetor de acesso somente de leitura, caso não exista autenticação, o usuário pode acessar apenas para recuperar dados
-			"/h2-console/**"
+			"/h2-console/**",
+			"/estado/**"
 			
 	}; //No neu caso, se o usuário não estiver logado, não pode fazer nada. Se fosse um app de vendas poderia listar produtos
 	
 	private static final String[] PUBLIC_MATCHERS_POST = { //vetor de acesso somente de leitura, caso não exista autenticação, o usuário pode acessar apenas para recuperar dados
-			"/auth/forgot/**"
+			"/auth/forgot/**",
+			"/clientes/**"
 			
 	};
 	//Se for um app que o cliente pode se cadastrar, criar um outro Array com os endpoints que podem ser acessados e adicionar no método abaixo com o tipo "POST", por exemplo

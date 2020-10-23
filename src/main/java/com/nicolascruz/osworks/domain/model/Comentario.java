@@ -1,6 +1,7 @@
 package com.nicolascruz.osworks.domain.model;
 
 import java.time.OffsetDateTime;
+import java.util.Date;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -67,5 +68,15 @@ public class Comentario {
 		} else if (!id.equals(other.id))
 			return false;
 		return true;
+	}
+	
+	public Date formatDate(OffsetDateTime date) {
+
+		Date data = null;
+
+		if (date != null) {
+			data = Date.from(date.toInstant());
+		}
+		return data;
 	}
 }

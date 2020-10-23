@@ -6,7 +6,6 @@ import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
@@ -40,6 +39,7 @@ import com.nicolascruz.osworks.domain.service.PageClienteService;
 import com.nicolascruz.osworks.domain.service.UserService;
 import com.nicolascruz.osworks.domain.service.exceptions.AuthorizationException;
 import com.nicolascruz.osworks.domain.service.exceptions.DataIntegrityException;
+import com.nicolascruz.osworks.domain.service.exceptions.ObjectNotFoundException;
 import com.nicolascruz.osworks.security.UserSS;
 
 @RestController
@@ -54,9 +54,6 @@ public class ClienteController {
 
 	@Autowired
 	private PageClienteService paginaCliente;
-
-	@Autowired
-	private ModelMapper modelMapper;
 
 	@Autowired
 	private CidadeRepository cidadeRepository;
@@ -80,7 +77,14 @@ public class ClienteController {
 		}
 		return ResponseEntity.notFound().build();
 	}
-
+	
+	@GetMapping("/{clienteId}/enderecos") 
+	public List<Endereco> listarEnderecos(@PathVariable Long clienteId){
+		Cliente cliente = clienteRepository.findById(clienteId)
+				.orElseThrow(() -> new ObjectNotFoundException("Cliente não encontrado"));;
+		return cliente.getEnderecos();	
+	}
+		
 	@GetMapping("/cpf/{clienteCpf}")
 	public ResponseEntity<ClienteModel> buscarCpf(@PathVariable String clienteCpf) {
 		Cliente cliente = clienteRepository.findByCpf(clienteCpf);
@@ -102,7 +106,7 @@ public class ClienteController {
 		return ResponseEntity.notFound().build();
 	}
 
-	@PreAuthorize("hasAnyRole('ADMIN')")
+	//@PreAuthorize("hasAnyRole('ADMIN')")
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
 	public ClienteModel adicionar(@Valid @RequestBody ClienteInput clienteInput) {																
@@ -155,7 +159,7 @@ public class ClienteController {
 	}
 
 	private ClienteModel toModel(Cliente cliente) {
-		return modelMapper.map(cliente, ClienteModel.class);
+		return new ClienteModel(cliente);
 	}
 
 	private List<ClienteModel> toCollectionModel(List<Cliente> clientes) {
@@ -165,6 +169,7 @@ public class ClienteController {
 													// retornar um novo stream como resultado
 				.collect(Collectors.toList()); // vai reduzir o stream anterior para uma coleção
 	}
+
 	private Cliente fromDTO(ClienteInput cliente) {
 		Cliente cli = new Cliente(null, cliente.getNome(), cliente.getEmail(), cliente.getTelefone(), cliente.getCpf(),
 				TipoCliente.toEnum(cliente.getTipo()), bc.encode(cliente.getSenha()));

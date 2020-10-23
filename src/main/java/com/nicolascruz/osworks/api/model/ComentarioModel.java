@@ -1,13 +1,28 @@
 package com.nicolascruz.osworks.api.model;
 
-import java.time.OffsetDateTime;
+import java.util.Date;
+
+import com.nicolascruz.osworks.domain.model.Comentario;
 
 public class ComentarioModel {
 
 	private Long id;
 	private String descricao;
-	private OffsetDateTime dataEnvio;
+	private Date dataEnvio;
 	
+	public ComentarioModel() {
+		
+	}
+	
+	public ComentarioModel(Comentario comentario) {
+		id = comentario.getId();
+		descricao = comentario.getDescricao();
+		
+		if (comentario.formatDate(comentario.getDataEnvio()) == null)
+			dataEnvio = null;
+		else
+			dataEnvio = comentario.formatDate(comentario.getDataEnvio());
+	}
 	public Long getId() {
 		return id;
 	}
@@ -20,10 +35,10 @@ public class ComentarioModel {
 	public void setDescricao(String descricao) {
 		this.descricao = descricao;
 	}
-	public OffsetDateTime getDataEnvio() {
+	public Date getDataEnvio() {
 		return dataEnvio;
 	}
-	public void setDataEnvio(OffsetDateTime dataEnvio) {
+	public void setDataEnvio(Date dataEnvio) {
 		this.dataEnvio = dataEnvio;
 	}
 }
