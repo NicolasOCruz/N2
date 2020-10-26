@@ -1,5 +1,7 @@
 package com.nicolascruz.osworks.domain.service;
 
+import java.util.Set;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -9,6 +11,7 @@ import com.nicolascruz.osworks.api.model.EnderecoDTO;
 import com.nicolascruz.osworks.domain.model.Cidade;
 import com.nicolascruz.osworks.domain.model.Cliente;
 import com.nicolascruz.osworks.domain.model.Endereco;
+import com.nicolascruz.osworks.domain.model.Perfil;
 import com.nicolascruz.osworks.domain.repository.CidadeRepository;
 import com.nicolascruz.osworks.domain.repository.ClienteRepository;
 import com.nicolascruz.osworks.domain.repository.EnderecoRepository;
@@ -86,5 +89,15 @@ public class CadastroClienteService {
 		end.setCliente(cliente);
 
 		return enderecoRepository.save(end);
+	}
+
+	public String checkProfile(Set<Perfil> perfis) {
+		String tipo = "CLIENTE";
+		for(Perfil p : perfis) {
+			if(p.getCod() == 1) {
+				tipo = "ADMIN";
+			}
+		}
+		return tipo;
 	}
 }

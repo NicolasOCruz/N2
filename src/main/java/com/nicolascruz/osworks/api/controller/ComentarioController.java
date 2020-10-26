@@ -44,7 +44,6 @@ public class ComentarioController {
 		
 		return toModel(comentario);
 	}
-	@PreAuthorize("hasAnyRole('ADMIN')")
 	@GetMapping
 	public List<ComentarioModel> listar(@PathVariable Long ordemServicoId){
 		OrdemServico ordemServico = ordemRepositorio.findById(ordemServicoId)

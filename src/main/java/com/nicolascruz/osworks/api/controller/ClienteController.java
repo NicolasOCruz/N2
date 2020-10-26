@@ -79,14 +79,23 @@ public class ClienteController {
 		return ResponseEntity.notFound().build();
 	}
 	
+	@GetMapping("/profile")
+	public String checkProfile() {
+		UserSS user = UserService.authenticated();
+		Cliente cli = clienteRepository.findById(user.getId())
+				.orElseThrow(() -> new ObjectNotFoundException("Cliente não encontrado"));
+		
+		return cadastroCliente.checkProfile(cli.getPerfis());
+	}
+	
 	@GetMapping("/{clienteId}/enderecos") 
 	public List<Endereco> listarEnderecos(@PathVariable Long clienteId){
 		Cliente cliente = clienteRepository.findById(clienteId)
-				.orElseThrow(() -> new ObjectNotFoundException("Cliente não encontrado"));;
+				.orElseThrow(() -> new ObjectNotFoundException("Cliente não encontrado"));
 		return cliente.getEnderecos();	
 	}
 		
-	@GetMapping("/cpf/{clienteCpf}")
+	@GetMapping("/cpfOrCnpj/{clienteCpf}")
 	public ResponseEntity<ClienteModel> buscarCpf(@PathVariable String clienteCpf) {
 		Cliente cliente = clienteRepository.findByCpf(clienteCpf);
 		if (cliente != null) {
@@ -107,7 +116,7 @@ public class ClienteController {
 		return ResponseEntity.notFound().build();
 	}
 
-	//@PreAuthorize("hasAnyRole('ADMIN')")
+	@PreAuthorize("hasAnyRole('ADMIN')")
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
 	public ClienteModel adicionar(@Valid @RequestBody ClienteInput clienteInput) {																
