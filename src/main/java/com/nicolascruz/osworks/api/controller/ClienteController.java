@@ -1,5 +1,6 @@
 package com.nicolascruz.osworks.api.controller;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.nicolascruz.osworks.api.model.ClienteDTO;
 import com.nicolascruz.osworks.api.model.ClienteInput;
@@ -77,15 +79,6 @@ public class ClienteController {
 			return ResponseEntity.ok(clienteModel);
 		}
 		return ResponseEntity.notFound().build();
-	}
-	
-	@GetMapping("/profile")
-	public String checkProfile() {
-		UserSS user = UserService.authenticated();
-		Cliente cli = clienteRepository.findById(user.getId())
-				.orElseThrow(() -> new ObjectNotFoundException("Cliente não encontrado"));
-		
-		return cadastroCliente.checkProfile(cli.getPerfis());
 	}
 	
 	@GetMapping("/{clienteId}/enderecos") 
@@ -174,6 +167,12 @@ public class ClienteController {
 
 		return ResponseEntity.ok().body(listClienteModel);
 	}
+	
+	@PostMapping("/picture")
+	public ResponseEntity<Void> uploadProfilePicture(@RequestParam(name="file") MultipartFile file){
+		URI uri = cadastroCliente.uploadProfilePicture(file);
+		return ResponseEntity.created(uri).build();
+	}
 
 	private ClienteModel toModel(Cliente cliente) {
 		return new ClienteModel(cliente);
@@ -189,7 +188,7 @@ public class ClienteController {
 
 	private Cliente fromDTO(ClienteInput cliente) {
 		Cliente cli = new Cliente(null, cliente.getNome(), cliente.getEmail(), cliente.getTelefone(), cliente.getCpf(),
-				TipoCliente.toEnum(cliente.getTipo()), bc.encode(cliente.getSenha()));
+				TipoCliente.toEnum(cliente.getTipo()), bc.encode(cliente.getSenha()), Perfil.toEnum(cliente.getPerfil()));
 		Cidade city = cidadeRepository.findById(cliente.getCidadeId()).orElse(null);
 
 		Endereco end = new Endereco(null, cliente.getLogradouro(), cliente.getNumero(), cliente.getComplemento(),

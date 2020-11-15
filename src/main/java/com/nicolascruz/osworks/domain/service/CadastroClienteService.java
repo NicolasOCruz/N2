@@ -1,22 +1,26 @@
 package com.nicolascruz.osworks.domain.service;
 
-import java.util.Set;
+import java.awt.image.BufferedImage;
+import java.net.URI;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.nicolascruz.osworks.api.model.ClienteDTO;
 import com.nicolascruz.osworks.api.model.EnderecoDTO;
 import com.nicolascruz.osworks.domain.model.Cidade;
 import com.nicolascruz.osworks.domain.model.Cliente;
 import com.nicolascruz.osworks.domain.model.Endereco;
-import com.nicolascruz.osworks.domain.model.Perfil;
 import com.nicolascruz.osworks.domain.repository.CidadeRepository;
 import com.nicolascruz.osworks.domain.repository.ClienteRepository;
 import com.nicolascruz.osworks.domain.repository.EnderecoRepository;
+import com.nicolascruz.osworks.domain.service.exceptions.AuthorizationException;
 import com.nicolascruz.osworks.domain.service.exceptions.DataIntegrityException;
 import com.nicolascruz.osworks.domain.service.exceptions.ObjectNotFoundException;
+import com.nicolascruz.osworks.security.UserSS;
 
 @Service
 public class CadastroClienteService {
@@ -32,6 +36,18 @@ public class CadastroClienteService {
 	
 	@Autowired
 	private EmailService emailService;
+	
+	@Autowired
+	private ImageService imageService;
+	
+	@Autowired
+	private S3Service s3Service;
+	
+	@Value("${img.prefix.os.profile}")
+	private String prefix;
+	
+	@Value("${img.profile.size}")
+	private Integer size;
 	
 	@Transactional
 	public Cliente salvar(Cliente cliente) {
@@ -63,7 +79,7 @@ public class CadastroClienteService {
 	}
 	
 	public Cliente fromDTO(ClienteDTO objDto) {
-		return new Cliente(objDto.getId(), objDto.getNome(), objDto.getEmail(), null, null, null, null);
+		return new Cliente(objDto.getId(), objDto.getNome(), objDto.getEmail(), null, null, null, null, null);
 	}
 	
 	private void updateData(Cliente newObj, Cliente cliente) {
@@ -91,13 +107,21 @@ public class CadastroClienteService {
 		return enderecoRepository.save(end);
 	}
 
-	public String checkProfile(Set<Perfil> perfis) {
-		String tipo = "CLIENTE";
-		for(Perfil p : perfis) {
-			if(p.getCod() == 1) {
-				tipo = "ADMIN";
+	public URI uploadProfilePicture(MultipartFile multipartFile) {
+		 
+		 UserSS user = UserService.authenticated();
+			
+			if(user == null) {
+				throw new AuthorizationException("Acesso Negado");
+				
 			}
-		}
-		return tipo;
-	}
+		
+			BufferedImage jpgImage = imageService.getJpgImageFromFile(multipartFile);
+			jpgImage = imageService.cropSquare(jpgImage);
+			jpgImage = imageService.resize(jpgImage, size);
+			
+			String fileName = prefix + user.getId() + ".jpg";
+			
+			return s3Service.uploadFile(imageService.getInputStream(jpgImage, "jpg"), fileName, "image");
+	 }
 }

@@ -2,8 +2,12 @@ package com.nicolascruz.osworks.security;
 
 import java.util.Date;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import com.nicolascruz.osworks.domain.model.Cliente;
+import com.nicolascruz.osworks.domain.repository.ClienteRepository;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -18,10 +22,19 @@ public class JWTUtil {
 	@Value("${jwt.expiration}")
 	private Long expiration;
 	
+	@Autowired
+	private ClienteRepository clienteRepository;
+	
 	//Método para gerar o token
 	public String generateToken(String username) {
+		
+		Cliente cliente = clienteRepository.findByEmail(username);
+		
+		Claims claims = Jwts.claims().setSubject(username);
+		claims.put("role", cliente.getPerfis());
+		
 		return Jwts.builder()
-				.setSubject(username)
+				.setClaims(claims)
 				.setExpiration(new Date(System.currentTimeMillis() + expiration))
 				.signWith(SignatureAlgorithm.HS512, secret.getBytes())
 				.compact();

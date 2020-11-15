@@ -55,6 +55,7 @@ public class ClienteInput implements Serializable {
 	
 	private Long cidadeId;
 	
+	private Integer perfil;
 	
 	public ClienteInput() {
 		
@@ -154,6 +155,14 @@ public class ClienteInput implements Serializable {
 
 	public void setSenha(String senha) {
 		this.senha = senha;
+	}
+
+	public Integer getPerfil() {
+		return perfil;
+	}
+
+	public void setPerfil(Integer perfil) {
+		this.perfil = perfil;
 	}
 
 	@Override

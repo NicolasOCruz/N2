@@ -73,7 +73,7 @@ public class Cliente implements Serializable {
 		addPerfil(Perfil.CLIENTE);
 	}
 	public Cliente(@NotNull(groups = ClienteID.class) Long id, String nome, String email, String telefone, String cpf,
-			TipoCliente tipo, String senha) {
+			TipoCliente tipo, String senha, Perfil perfil) {
 		super();
 		this.id = id;
 		this.nome = nome;
@@ -83,6 +83,9 @@ public class Cliente implements Serializable {
 		this.tipo = (tipo==null) ? null : tipo.getCod();
 		this.senha = senha;
 		addPerfil(Perfil.CLIENTE);
+		if (perfil != null) {
+			addPerfil(perfil);
+		}
 	}
 	public Long getId() {
 		return id;
