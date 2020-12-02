@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<title th:remove="all">Order Confirmation</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+	<div>
+		<h1>
+			Código: <span th:text="${ordem.id}"> </span>
+		</h1>
+		<p>
+			Data de Abertura: <span
+				th:text="${#dates.format(ordem.formatDate(), 'dd/MM/yyyy HH:mm')}"></span>
+		</p>
+		<p>
+			Cliente: <span th:text="${ordem.cliente.nome}"></span>
+		</p>
+		<p>
+			Preço: <span
+					th:text="${#numbers.formatDecimal(ordem.preco, 0, 'POINT', 2,
+'COMMA')}"></span>
+		</p>
+		<p>
+			Status: <span th:text="${ordem.status}"></span>
+		</p>
+	</div>
+</body>
+</html>
